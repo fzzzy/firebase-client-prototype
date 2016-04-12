@@ -1,3 +1,5 @@
+
+
 class FirebaseClient {
   constructor(url) {
     this.url = url.replace(/\/*$/, "");
@@ -136,40 +138,4 @@ class FirebaseClient {
 
 FirebaseClient.prototype.EVENTS = ['put', 'patch'];
 
-
-/**********************************************************
- * sample code
- */
-
-let baseUrl = 'https://blistering-inferno-6839.firebaseio.com/client-test';
-
-let client = new FirebaseClient(baseUrl);
-client.on("put", write.bind(null, "->put"));
-client.on("patch", write.bind(null, "->patch"));
-client.on("close", write.bind(null, "(close)"));
-
-function write() {
-  let el = document.getElementById("output");
-  let c = el.textContent;
-  c += "\n";
-  for (let a of arguments) {
-    if (! a || typeof a != "string") {
-      a = JSON.stringify(a);
-    }
-    c += a + " ";
-  }
-  el.textContent = c;
-}
-
-client.connect().then(() => {
-  write("connected", client._sse.readyState);
-  return client.put("/foo", {test: Math.random()});
-}).then(() => {
-  write("did put /foo");
-  return client.put("/bar", {test: Math.random()});
-}).then(() => {
-  write("did put /bar");
-  return client.get("/foo");
-}).then((body) => {
-  write("got from /foo:", body);
-});
+exports.FirebaseClient = FirebaseClient;

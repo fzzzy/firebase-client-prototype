@@ -1,0 +1,5 @@
+npm install
+make
+webpack -w main.js build/client-bundle.js &
+node_modules/http-server/bin/http-server build
+
