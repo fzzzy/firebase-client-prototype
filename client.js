@@ -13,7 +13,7 @@ class FirebaseClient {
         console.warn("Reconnecting with open event stream");
         this.close("reconnect");
       }
-      this._sse = new EventSource(this.url + ".json");
+      this._sse = new EventSource(this.url + `.json?orderBy="priority"`);
       for (let eventName of this.EVENTS) {
         this._sse.addEventListener(eventName, this._onEvent.bind(this, eventName));
       }
@@ -69,13 +69,17 @@ class FirebaseClient {
     return this.url + "/" + path + ".json";
   }
 
-  get(path) {
+  get(path, query) {
     let url = this._makeUrl(path);
-    return this._request("GET", url);
+    return this._request("GET", `${url}?${query}`);
   }
 
   put(path, body) {
     return this._update("PUT", path, body);
+  }
+
+  post(path, body) {
+    return this._update("POST", path, body);
   }
 
   patch(path, body) {
@@ -95,7 +99,8 @@ class FirebaseClient {
       throw new Error("JSON body expected");
     }
     let url = this._makeUrl(path);
-    return this._request("PUT", url, JSON.stringify(body));
+    body[".priority"] = { ".sv": "timestamp" };
+    return this._request(method, url, JSON.stringify(body));
   }
 
   _request(method, url, body) {

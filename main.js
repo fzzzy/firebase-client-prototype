@@ -7,12 +7,28 @@ import { render, findDOMNode } from "react-dom";
 let baseUrl = 'https://crackling-torch-1932.firebaseio.com/test';
 
 function draw(state) {
+  function send_chat(obj) {
+    state.client.post("", obj);
+  }
+
   render(
-    <Screen title={ state.title } chat={ state.chat } />,
+    <Screen title={ state.title } chat={ state.chat } send_chat={ send_chat } />,
     document.getElementById("react-root"));
 }
 
 class Screen extends React.Component {
+  componentDidMount() {
+    let input = findDOMNode(this.refs.inputline);
+    input.focus();
+  }
+
+  formSubmit(e) {
+    e.preventDefault();
+    let input = findDOMNode(this.refs.inputline);
+    this.props.send_chat({chat: input.value + Date.now()});
+    input.value = "";
+  }
+
   render() {
     let chatLines = this.props.chat.map(
       (line, i) => <div key={ i }>{ line }</div>);
@@ -22,18 +38,23 @@ class Screen extends React.Component {
       <div>
         { chatLines }
       </div>
+      <form onSubmit={ this.formSubmit.bind(this) }>
+        <input ref="inputline" />
+        <button>Send</button>
+      </form>
     </div>;
   }
 }
 
 class State {
-  constructor() {
+  constructor(client) {
     this.title = "Room title";
     this.chat = [];
+    this.client = client;
   }
 
-  setChat(chat) {
-    this.chat = chat;
+  pushChat(chat) {
+    this.chat.push(chat);
     draw(this);
   }
 
@@ -44,11 +65,21 @@ class State {
 }
 
 async function main() {
-  let state = new State();
   let client = new FirebaseClient(baseUrl);
+  let state = new State(client);
+  draw(state);
   client.on("put", (val) => {
-    if (val.path === "/chat") {
-      state.setChat(val.data);
+    if (val.data) {
+      if (val.path === "/") {
+        for (let index in val.data) {
+          let el = val.data[index];
+          if (el.chat) {
+            state.pushChat(el.chat);
+          }
+        }
+      } else if (val.data.chat) {
+        state.pushChat(val.data.chat);
+      }
     }
     console.log("put", val);
   });
@@ -60,10 +91,6 @@ async function main() {
   });
 
   await client.connect();
-  let result = await client.get("/chat") || [];
-  console.log("did get /chat", result);
-  result.push("hello");
-  await client.put("/chat", result);
 }
 
 main();
