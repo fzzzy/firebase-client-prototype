@@ -4,7 +4,7 @@ import { FirebaseClient } from "./client";
 import * as React from "react";
 import { render, findDOMNode } from "react-dom";
 
-let baseUrl = 'https://crackling-torch-1932.firebaseio.com/test';
+let baseUrl = 'https://hello-async.firebaseio.com/test';
 
 function draw(state) {
   function send_chat(obj) {
@@ -90,7 +90,7 @@ function main() {
     console.log("close", val);
   });
 
-  client.connect();
+  client.connect(2);
 }
 
 main();

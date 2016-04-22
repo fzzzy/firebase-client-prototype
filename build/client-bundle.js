@@ -66,7 +66,7 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var baseUrl = 'https://crackling-torch-1932.firebaseio.com/test';
+	var baseUrl = 'https://hello-async.firebaseio.com/test';
 
 	function draw(state) {
 	  function send_chat(obj) {
@@ -188,7 +188,7 @@
 	    console.log("close", val);
 	  });
 
-	  client.connect();
+	  client.connect(2);
 	}
 
 	main();
@@ -7956,7 +7956,7 @@
 
 	  _createClass(FirebaseClient, [{
 	    key: "connect",
-	    value: function connect() {
+	    value: function connect(limit) {
 	      var _this = this;
 
 	      return new Promise(function (resolve, reject) {
@@ -7964,7 +7964,10 @@
 	          console.warn("Reconnecting with open event stream");
 	          _this.close("reconnect");
 	        }
-	        _this._sse = new EventSource(_this.url + ".json?orderBy=\"priority\"");
+	        if (!limit) {
+	          limit = 10;
+	        }
+	        _this._sse = new EventSource(_this.url + '.json?orderBy="priority"&limitToLast=' + limit);
 	        var _iteratorNormalCompletion = true;
 	        var _didIteratorError = false;
 	        var _iteratorError = undefined;

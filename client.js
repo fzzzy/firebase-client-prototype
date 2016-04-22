@@ -7,13 +7,18 @@ class FirebaseClient {
     this._handlers = {};
   }
 
-  connect() {
+  connect(limit) {
     return new Promise((resolve, reject) => {
       if (this._sse) {
         console.warn("Reconnecting with open event stream");
         this.close("reconnect");
       }
-      this._sse = new EventSource(this.url + `.json?orderBy="priority"`);
+      if (! limit) {
+        limit = 10;
+      }
+      this._sse = new EventSource(
+        this.url +
+        '.json?orderBy="priority"&limitToLast=' + limit);
       for (let eventName of this.EVENTS) {
         this._sse.addEventListener(eventName, this._onEvent.bind(this, eventName));
       }
