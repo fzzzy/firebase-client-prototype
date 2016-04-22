@@ -64,7 +64,7 @@ class State {
   }
 }
 
-async function main() {
+function main() {
   let client = new FirebaseClient(baseUrl);
   let state = new State(client);
   draw(state);
@@ -90,7 +90,7 @@ async function main() {
     console.log("close", val);
   });
 
-  await client.connect();
+  client.connect();
 }
 
 main();

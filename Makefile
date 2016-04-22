@@ -12,3 +12,5 @@ build/index.html: index.html
 
 client: build/client-bundle.js build/index.html
 
+clean:
+	rm -rf build
