@@ -4,6 +4,7 @@ import { FirebaseClient } from "./client";
 import * as React from "react";
 import { render, findDOMNode } from "react-dom";
 import { createStore } from "redux";
+import { List } from "immutable";
 
 let baseUrl = 'https://hello-async.firebaseio.com/test';
 let _client;
@@ -55,17 +56,15 @@ function createReducer(client) {
     if (typeof state === "undefined") {
       return {
         title: "Room title",
-        chat: [],
+        chat: List(),
         client: client
       }
     }
     switch (action.type) {
       case "PUSH_CHAT":
-        let chat = JSON.parse(JSON.stringify(state.chat));
-        chat.push(action.chat);
         return {
           title: state.title,
-          chat: chat,
+          chat: state.chat.push(action.chat),
           client: state.client
         };
       case "SET_TITLE":
