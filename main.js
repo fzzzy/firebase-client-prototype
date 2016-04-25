@@ -4,7 +4,7 @@ import { FirebaseClient } from "./client";
 import * as React from "react";
 import { render, findDOMNode } from "react-dom";
 import { createStore } from "redux";
-import { List } from "immutable";
+import { List, Map } from "immutable";
 
 let baseUrl = 'https://hello-async.firebaseio.com/test';
 let _client;
@@ -13,11 +13,14 @@ let store = null;
 function draw() {
   let state = store.getState();
   function send_chat(obj) {
-    state.client.post("", obj);
+    state.get("client").post("", obj);
   }
 
   render(
-    <Screen title={ state.title } chat={ state.chat } send_chat={ send_chat } />,
+    <Screen
+      title={ state.get("title") }
+      chat={ state.get("chat") }
+      send_chat={ send_chat } />,
     document.getElementById("react-root"));
 }
 
@@ -54,25 +57,18 @@ class Screen extends React.Component {
 function createReducer(client) {
   return function reduxStore(state, action) {
     if (typeof state === "undefined") {
-      return {
+      return Map({
         title: "Room title",
         chat: List(),
         client: client
-      }
+      });
     }
     switch (action.type) {
       case "PUSH_CHAT":
-        return {
-          title: state.title,
-          chat: state.chat.push(action.chat),
-          client: state.client
-        };
+        return state.set(
+          "chat", state.get("chat").push(action.chat));
       case "SET_TITLE":
-        return {
-          title: action.title,
-          chat: state.chat,
-          client: state.client
-        }
+        return state.set("title", action.title);
     }
   }
 }

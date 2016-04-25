@@ -77,10 +77,13 @@
 	function draw() {
 	  var state = store.getState();
 	  function send_chat(obj) {
-	    state.client.post("", obj);
+	    state.get("client").post("", obj);
 	  }
 
-	  (0, _reactDom.render)(React.createElement(Screen, { title: state.title, chat: state.chat, send_chat: send_chat }), document.getElementById("react-root"));
+	  (0, _reactDom.render)(React.createElement(Screen, {
+	    title: state.get("title"),
+	    chat: state.get("chat"),
+	    send_chat: send_chat }), document.getElementById("react-root"));
 	}
 
 	var Screen = function (_React$Component) {
@@ -146,25 +149,17 @@
 	function createReducer(client) {
 	  return function reduxStore(state, action) {
 	    if (typeof state === "undefined") {
-	      return {
+	      return (0, _immutable.Map)({
 	        title: "Room title",
 	        chat: (0, _immutable.List)(),
 	        client: client
-	      };
+	      });
 	    }
 	    switch (action.type) {
 	      case "PUSH_CHAT":
-	        return {
-	          title: state.title,
-	          chat: state.chat.push(action.chat),
-	          client: state.client
-	        };
+	        return state.set("chat", state.get("chat").push(action.chat));
 	      case "SET_TITLE":
-	        return {
-	          title: action.title,
-	          chat: state.chat,
-	          client: state.client
-	        };
+	        return state.set("title", action.title);
 	    }
 	  };
 	}
